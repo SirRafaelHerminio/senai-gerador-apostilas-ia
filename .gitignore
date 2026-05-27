@@ -1,0 +1,14 @@
+# .gitignore — Gerador SENAI V1.0
+.env
+*.key
+__pycache__/
+*.pyc
+venv/
+env/
+.venv/
+output/
+uploads/
+*.log
+.DS_Store
+.vscode/
+.idea/

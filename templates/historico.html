@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Histórico — Gerador SENAI V1.8</title>
+<style>
+:root{--azul:#0d3b66;--azul-m:#1a5fa8;--azul-c:#eaf2fb;--texto:#1a2a3a;--texto2:#4a6a8a;--borda:#d0dae8;--verde:#0f9d58;--vermelho:#dc2626;--bg:#f0f4f9;--card:#fff;--r:10px;--r-sm:6px;--sombra:0 2px 10px rgba(13,59,102,.08)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--texto);min-height:100vh;display:flex}
+.sidebar{width:240px;min-height:100vh;background:var(--azul);display:flex;flex-direction:column;padding:24px 16px;position:fixed;top:0;left:0;bottom:0}
+.logo{display:flex;align-items:center;gap:10px;padding-bottom:22px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:22px}
+.logo-icon{width:40px;height:40px;background:#dc2626;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:15px;flex-shrink:0}
+.logo-text strong{display:block;color:#fff;font-size:14px}
+.logo-text span{color:rgba(255,255,255,.45);font-size:11px}
+nav{display:flex;flex-direction:column;gap:3px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-sm);color:rgba(255,255,255,.6);text-decoration:none;font-size:13px;font-weight:500;transition:.2s}
+.nav-item:hover,.nav-item.ativo{background:rgba(255,255,255,.11);color:#fff}
+.main{margin-left:240px;flex:1;padding:32px 36px;max-width:calc(100vw - 240px)}
+.page-title{margin-bottom:24px}
+.page-title h1{font-size:22px;font-weight:700}
+.page-title p{color:var(--texto2);font-size:13px;margin-top:3px}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sombra);border:1px solid var(--borda);padding:24px}
+.empty{text-align:center;padding:48px;color:var(--texto2)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 14px;background:var(--azul-c);color:var(--azul);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+td{padding:11px 14px;border-bottom:1px solid var(--borda);color:var(--texto2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8faff}
+.btn-sm{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--r-sm);font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;border:none;transition:.2s;font-family:Arial}
+.btn-sm.p{background:var(--azul);color:#fff}
+.btn-sm.p:hover{background:var(--azul-m)}
+.btn-sm.del{background:#fff;color:var(--vermelho);border:1.5px solid var(--vermelho)}
+.btn-sm.del:hover{background:#fef2f2}
+.acoes-row{display:flex;gap:6px}
+.docx-badge{display:inline-block;background:#1a5fa8;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.5px}
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;color:#fff;z-index:999;display:none;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.toast.ok{background:var(--verde)}
+.toast.err{background:var(--vermelho)}
+@media(max-width:860px){.sidebar{display:none}.main{margin-left:0;max-width:100%;padding:14px}}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">SN</div>
+    <div class="logo-text"><strong>Gerador SENAI</strong><span>V1.8 — DOCX</span></div>
+  </div>
+  <nav>
+    <a href="/" class="nav-item">Gerar Apostila</a>
+    <a href="/historico" class="nav-item ativo">Historico</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="page-title">
+    <h1>Histórico de Apostilas</h1>
+    <p>Arquivos DOCX gerados — clique em Excluir para remover permanentemente</p>
+  </div>
+  <div class="card">
+    {% if apostilas %}
+    <table id="tabela">
+      <thead>
+        <tr><th>Arquivo</th><th>Tipo</th><th>Tamanho</th><th>Data</th><th>Ações</th></tr>
+      </thead>
+      <tbody>
+        {% for ap in apostilas %}
+        <tr id="row-{{ loop.index }}">
+          <td style="color:var(--texto);font-weight:500;max-width:340px;word-break:break-all">{{ ap.nome_arquivo }}</td>
+          <td><span class="docx-badge">DOCX</span></td>
+          <td>{{ ap.tamanho }}</td>
+          <td>{{ ap.data_criacao }}</td>
+          <td>
+            <div class="acoes-row">
+              <a href="/download/{{ ap.nome_arquivo }}" class="btn-sm p">Download</a>
+              <button class="btn-sm del" onclick="excluir('{{ ap.nome_arquivo }}','row-{{ loop.index }}')">Excluir</button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty" id="empty-state">
+      <p style="font-size:32px">&#128196;</p>
+      <p>Nenhuma apostila gerada ainda.</p>
+      <p style="margin-top:12px"><a href="/" style="color:var(--azul-m);font-weight:700">Gerar primeira apostila</a></p>
+    </div>
+    {% endif %}
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+async function excluir(nome, rowId){
+  if(!confirm(`Excluir permanentemente:\n${nome}\n\nEsta ação não pode ser desfeita.`))return;
+  try{
+    const r=await fetch(`/api/apostilas/${encodeURIComponent(nome)}`,{method:"DELETE"});
+    const d=await r.json();
+    if(d.sucesso){
+      const row=document.getElementById(rowId);
+      if(row)row.remove();
+      const tb=document.querySelector("#tabela tbody");
+      if(tb&&tb.rows.length===0)
+        document.querySelector(".card").innerHTML='<div class="empty"><p style="font-size:32px">&#128196;</p><p>Nenhuma apostila gerada ainda.</p></div>';
+      toast("Apostila excluída com sucesso.","ok");
+    }else{toast(d.erro||"Erro ao excluir.","err")}
+  }catch{toast("Erro de conexão.","err")}
+}
+function toast(msg,tipo){
+  const t=document.getElementById("toast");
+  t.textContent=msg;t.className=`toast ${tipo}`;t.style.display="block";
+  setTimeout(()=>{t.style.display="none"},3500);
+}
+</script>
+</body>
+</html>

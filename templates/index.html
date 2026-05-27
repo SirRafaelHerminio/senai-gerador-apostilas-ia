@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Apostilas SENAI — V1.8</title>
+<style>
+:root{--azul:#0d3b66;--azul-m:#1a5fa8;--azul-c:#eaf2fb;--texto:#1a2a3a;--texto2:#4a6a8a;--borda:#d0dae8;--verde:#0f9d58;--amarelo:#d97706;--vermelho:#dc2626;--bg:#f0f4f9;--card:#fff;--r:10px;--r-sm:6px;--sombra:0 2px 12px rgba(13,59,102,.09)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--texto);min-height:100vh;display:flex}
+.sidebar{width:240px;min-height:100vh;background:var(--azul);display:flex;flex-direction:column;padding:24px 16px;position:fixed;top:0;left:0;bottom:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px;padding-bottom:22px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:22px}
+.logo-icon{width:40px;height:40px;background:#dc2626;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:15px;flex-shrink:0}
+.logo-text strong{display:block;color:#fff;font-size:14px;font-weight:700}
+.logo-text span{color:rgba(255,255,255,.45);font-size:11px}
+nav{display:flex;flex-direction:column;gap:3px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-sm);color:rgba(255,255,255,.6);text-decoration:none;font-size:13px;font-weight:500;transition:.2s}
+.nav-item:hover,.nav-item.ativo{background:rgba(255,255,255,.11);color:#fff}
+.sidebar-footer{margin-top:auto;display:flex;flex-direction:column;gap:6px}
+.api-badge{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:var(--r-sm);background:rgba(255,255,255,.07);font-size:11px;color:rgba(255,255,255,.65)}
+.dot{width:7px;height:7px;border-radius:50%;background:#666;flex-shrink:0}
+.dot.on{background:var(--verde);animation:pulsar 2s infinite}
+.dot.off{background:var(--vermelho)}
+.versao{font-size:10px;color:rgba(255,255,255,.3);text-align:center}
+@keyframes pulsar{0%,100%{opacity:1}50%{opacity:.35}}
+.main{margin-left:240px;flex:1;padding:32px 40px;max-width:calc(100vw - 240px)}
+.page-header{margin-bottom:24px}
+.page-header h1{font-size:22px;font-weight:700}
+.page-header p{color:var(--texto2);font-size:13px;margin-top:4px}
+.banner{background:linear-gradient(135deg,#0d3b66,#1a5fa8);color:#fff;border-radius:var(--r);padding:14px 20px;margin-bottom:18px;font-size:13px}
+.banner strong{font-size:14px;display:block;margin-bottom:2px}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sombra);border:1px solid var(--borda);padding:22px;margin-bottom:14px}
+.card-header{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--borda)}
+.card-icon{width:32px;height:32px;background:var(--azul-c);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.card-header h2{font-size:14px;font-weight:700;flex:1}
+.badge{font-size:10px;font-weight:700;color:var(--azul-m);background:var(--azul-c);padding:3px 9px;border-radius:20px}
+.row{display:grid;gap:14px}
+.row.c2{grid-template-columns:1fr 1fr}
+.field{display:flex;flex-direction:column;gap:5px}
+label{font-size:11px;font-weight:700;color:var(--texto2);text-transform:uppercase;letter-spacing:.5px}
+label .req{color:var(--vermelho)}
+select,input[type=text],textarea{width:100%;padding:9px 12px;border:1.5px solid var(--borda);border-radius:var(--r-sm);font-family:Arial;font-size:13.5px;color:var(--texto);background:#fff;outline:none;transition:.2s;appearance:none}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%234a6a8a' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+select:focus,input:focus,textarea:focus{border-color:var(--azul-m);box-shadow:0 0 0 3px rgba(26,95,168,.1)}
+select:disabled{background-color:#f5f7fa;color:#aaa;cursor:not-allowed}
+textarea{min-height:80px;resize:vertical;line-height:1.5}
+.upload-area{border:2px dashed var(--borda);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;position:relative;transition:.2s}
+.upload-area:hover,.upload-area.drag{border-color:var(--azul-m);background:var(--azul-c)}
+.upload-area input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.upload-area p{font-size:13px;color:var(--texto2)}
+.upload-area strong{color:var(--azul-m)}
+.upload-area small{font-size:11px;color:#aaa;display:block;margin-top:4px}
+.upload-prev{display:none;align-items:center;gap:10px;padding:10px 14px;background:var(--azul-c);border-radius:var(--r-sm);margin-top:10px}
+.upload-prev.vis{display:flex}
+.upload-prev span{flex:1;font-size:13px;font-weight:600;color:var(--azul)}
+.upload-prev button{background:none;border:none;cursor:pointer;color:var(--vermelho);font-size:16px;padding:2px 6px}
+.avisos-uc{display:none;flex-direction:column;gap:5px;margin-top:10px}
+.avisos-uc.vis{display:flex}
+.aviso{font-size:12px;padding:7px 11px;border-radius:5px;border-left:3px solid}
+.aviso.warn{background:#fffbeb;border-color:var(--amarelo);color:#92400e}
+.aviso.info{background:var(--azul-c);border-color:var(--azul-m);color:var(--azul)}
+.aviso.ok{background:#ecfdf5;border-color:var(--verde);color:#065f46}
+.btn-gerar{width:100%;padding:14px;background:var(--azul);color:#fff;border:none;border-radius:var(--r);font-family:Arial;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;letter-spacing:.3px}
+.btn-gerar:hover{background:var(--azul-m);transform:translateY(-1px);box-shadow:0 6px 20px rgba(13,59,102,.2)}
+.btn-gerar:disabled{background:#b0bec5;cursor:not-allowed;transform:none;box-shadow:none}
+.progress-wrap{display:none;flex-direction:column;gap:10px;padding:18px 22px;background:#f8faff;border:1px solid #d0daf5;border-radius:var(--r);margin-top:14px}
+.progress-wrap.vis{display:flex}
+.pbar-outer{height:4px;background:#e0e7ef;border-radius:10px;overflow:hidden}
+.pbar{height:100%;width:0;background:var(--azul-m);border-radius:10px;transition:width .5s ease}
+.steps{display:flex;flex-direction:column;gap:6px}
+.step{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--texto2);padding:2px 0}
+.step-dot{width:20px;height:20px;border-radius:50%;background:#e0e7ef;color:#bbb;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.step.ativo .step-dot{background:var(--azul-m);color:#fff;animation:pulsar 1.2s infinite}
+.step.ok .step-dot{background:var(--verde);color:#fff;animation:none}
+.step.ativo{color:var(--texto);font-weight:600}
+.step.ok{color:var(--verde)}
+.progress-label{font-size:11px;color:var(--texto2);font-style:italic;text-align:center;margin-top:2px}
+.resultado{display:none;flex-direction:column;gap:14px;padding:20px;border-radius:var(--r);margin-top:14px}
+.resultado.sucesso{display:flex;background:#ecfdf5;border:1px solid #a7f3d0}
+.resultado.erro{display:flex;background:#fef2f2;border:1px solid #fecaca}
+.res-titulo{font-size:15px;font-weight:700}
+.res-titulo.s{color:#065f46}
+.res-titulo.e{color:var(--vermelho)}
+.res-sub{font-size:12px;color:var(--texto2)}
+.metricas{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.metrica{background:#fff;border-radius:var(--r-sm);padding:10px 12px;text-align:center;border:1px solid #e0ead8}
+.metrica-val{font-size:17px;font-weight:700;color:var(--azul-m)}
+.metrica-label{font-size:9px;color:var(--texto2);margin-top:2px;line-height:1.3}
+.acoes{display:flex;gap:8px;flex-wrap:wrap}
+.btn-acao{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:var(--r-sm);font-family:Arial;font-size:12.5px;font-weight:700;cursor:pointer;text-decoration:none;transition:.2s;border:none}
+.btn-acao.p{background:var(--azul);color:#fff}
+.btn-acao.p:hover{background:var(--azul-m)}
+.btn-acao.s{background:#fff;color:var(--azul);border:1.5px solid var(--azul)}
+.btn-acao.s:hover{background:var(--azul-c)}
+.avisos-res{display:flex;flex-direction:column;gap:5px}
+.aviso-res{font-size:11px;padding:6px 10px;border-radius:5px;background:#fffbeb;color:#92400e;border-left:3px solid var(--amarelo)}
+@media(max-width:900px){.sidebar{display:none}.main{margin-left:0;max-width:100%;padding:14px}.row.c2{grid-template-columns:1fr}.metricas{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">SN</div>
+    <div class="logo-text"><strong>Gerador SENAI</strong><span>V1.8 — DOCX</span></div>
+  </div>
+  <nav>
+    <a href="/" class="nav-item ativo">Gerar Apostila</a>
+    <a href="/historico" class="nav-item">Historico</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="api-badge">
+      <div class="dot" id="dot"></div>
+      <span id="status-txt">Verificando...</span>
+    </div>
+    <div class="versao">V1.8 — Gemini JSON + DOCX</div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="page-header">
+    <h1>Gerar Nova Apostila</h1>
+    <p>Pipeline modular V1.8 — Gemini gera JSON pedagogico, python-docx monta o DOCX</p>
+  </div>
+
+  <div class="banner">
+    <strong>Novo em V1.8 — Apostilas DOCX Profissionais</strong>
+    Gemini usa tokens apenas para ENSINAR (JSON puro). python-docx monta capa, sumario e formatacao profissional.
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon">&#127891;</div>
+      <h2>Curso e Unidade Curricular</h2>
+      <span class="badge">PASSO 1</span>
+    </div>
+    <div class="row c2">
+      <div class="field">
+        <label>Curso <span class="req">*</span></label>
+        <select id="sel-curso" onchange="carregarUCs()">
+          <option value="">-- Selecione um curso --</option>
+          {% for c in cursos %}<option value="{{ c }}">{{ c.replace('_',' ') }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label>Unidade Curricular <span class="req">*</span></label>
+        <select id="sel-uc" disabled onchange="infoUC()">
+          <option value="">-- Selecione o curso primeiro --</option>
+        </select>
+      </div>
+    </div>
+    <div class="avisos-uc" id="avisos-uc"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon">&#128197;</div>
+      <h2>Bloco / Aula</h2>
+      <span class="badge">PASSO 2</span>
+    </div>
+    <div class="field">
+      <label>Descricao do Bloco/Aula <span class="req">*</span></label>
+      <input type="text" id="bloco" placeholder="Ex: Bloco 2 — Aula 5 — Estruturas de Repeticao" maxlength="150">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon">&#128203;</div>
+      <h2>Plano de Aula</h2>
+      <span class="badge">PASSO 3</span>
+    </div>
+    <div class="upload-area" id="upload-zone">
+      <input type="file" id="plano-file" accept=".pdf,.docx,.txt" onchange="onFile(this)">
+      <p><strong>Clique para selecionar</strong> ou arraste o arquivo</p>
+      <small>PDF, DOCX ou TXT — maximo 50 MB (opcional)</small>
+    </div>
+    <div class="upload-prev" id="upload-prev">
+      <span id="upload-nome"></span>
+      <button onclick="removeFile()" title="Remover">&#10005;</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon">&#128172;</div>
+      <h2>Observacoes</h2>
+      <span class="badge">OPCIONAL</span>
+    </div>
+    <div class="row c2">
+      <div class="field">
+        <label>Seu Nome</label>
+        <input type="text" id="professor" placeholder="Prof. Rafael Silva">
+      </div>
+      <div class="field">
+        <label>Instrucoes para a IA</label>
+        <textarea id="obs" placeholder="Ex: Focar em exemplos com Python. Nivel intermediario."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-gerar" id="btn-gerar" onclick="gerar()">
+    Gerar Apostila DOCX com IA
+  </button>
+
+  <div class="progress-wrap" id="progress">
+    <div class="pbar-outer"><div class="pbar" id="pbar"></div></div>
+    <div class="steps">
+      <div class="step" id="s1"><div class="step-dot">1</div><span>Lendo documentos da UC e SAEP...</span></div>
+      <div class="step" id="s2"><div class="step-dot">2</div><span>Extraindo estrutura pedagogica...</span></div>
+      <div class="step" id="s3"><div class="step-dot">3</div><span>Gemini gerando mapa de capitulos (JSON)...</span></div>
+      <div class="step" id="s4"><div class="step-dot">4</div><span>Gemini gerando conteudo por capitulo...</span></div>
+      <div class="step" id="s5"><div class="step-dot">5</div><span>python-docx montando DOCX profissional...</span></div>
+    </div>
+    <div class="progress-label" id="progress-label">Iniciando pipeline V1.8...</div>
+  </div>
+
+  <div class="resultado" id="resultado">
+    <div class="res-titulo" id="res-titulo"></div>
+    <div class="res-sub" id="res-sub"></div>
+    <div class="metricas" id="res-metricas"></div>
+    <div class="avisos-res" id="res-avisos"></div>
+    <div class="acoes" id="res-acoes"></div>
+  </div>
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded",()=>{verificarStatus();configurarDrag()});
+
+async function verificarStatus(){
+  const dot=document.getElementById("dot"),txt=document.getElementById("status-txt");
+  try{
+    const d=await(await fetch("/api/status")).json();
+    if(d.conectado){
+      dot.className="dot on";
+      const m=(d.provider_info||{}).modelo||"";
+      txt.textContent=m.includes("flash")?"Gemini Flash OK":m?"Gemini OK":"IA conectada";
+    }else{dot.className="dot off";txt.textContent="Sem conexao"}
+  }catch{dot.className="dot off";txt.textContent="Erro"}
+}
+
+async function carregarUCs(){
+  const curso=document.getElementById("sel-curso").value;
+  const uc=document.getElementById("sel-uc");
+  const avs=document.getElementById("avisos-uc");
+  avs.className="avisos-uc";avs.innerHTML="";
+  if(!curso){uc.disabled=true;uc.innerHTML='<option value="">-- Selecione o curso --</option>';return}
+  uc.disabled=true;uc.innerHTML='<option>Carregando...</option>';
+  const d=await(await fetch(`/api/ucs?curso=${encodeURIComponent(curso)}`)).json();
+  uc.innerHTML='<option value="">-- Selecione a UC --</option>';
+  if(d.ucs_pastas&&d.ucs_pastas.length){
+    d.ucs_pastas.forEach((p,i)=>{const o=document.createElement("option");o.value=p;o.textContent=d.ucs_formatadas[i];uc.appendChild(o)});
+    uc.disabled=false;
+  }else{addAviso(avs,"Nenhuma UC encontrada. Verifique a pasta Cursos/.","warn");avs.classList.add("vis")}
+}
+
+async function infoUC(){
+  const curso=document.getElementById("sel-curso").value;
+  const uc=document.getElementById("sel-uc").value;
+  const avs=document.getElementById("avisos-uc");
+  avs.className="avisos-uc";avs.innerHTML="";
+  if(!curso||!uc)return;
+  const d=await(await fetch(`/api/uc/info?curso=${encodeURIComponent(curso)}&uc=${encodeURIComponent(uc)}`)).json();
+  let tem=false;
+  (d.avisos||[]).forEach(a=>{addAviso(avs,a,"warn");tem=true});
+  if(d.tem_pdf&&d.tem_saep){addAviso(avs,"UC e SAEP encontrados — geracao otimizada.","ok");tem=true}
+  else if(d.tem_pdf&&!d.tem_saep){addAviso(avs,"UC encontrada. Adicione o SAEP para apostilas mais ricas.","info");tem=true}
+  if(tem)avs.classList.add("vis");
+}
+
+function addAviso(c,t,tp){const d=document.createElement("div");d.className=`aviso ${tp}`;d.textContent=t;c.appendChild(d)}
+
+function onFile(i){if(!i.files[0])return;document.getElementById("upload-nome").textContent=i.files[0].name;document.getElementById("upload-prev").classList.add("vis")}
+function removeFile(){document.getElementById("plano-file").value="";document.getElementById("upload-prev").classList.remove("vis")}
+function configurarDrag(){
+  const z=document.getElementById("upload-zone");
+  z.addEventListener("dragover",e=>{e.preventDefault();z.classList.add("drag")});
+  z.addEventListener("dragleave",()=>z.classList.remove("drag"));
+  z.addEventListener("drop",e=>{e.preventDefault();z.classList.remove("drag");const f=e.dataTransfer.files;if(f.length){document.getElementById("plano-file").files=f;onFile(document.getElementById("plano-file"))}});
+}
+
+async function gerar(){
+  const curso=document.getElementById("sel-curso").value;
+  const uc=document.getElementById("sel-uc").value;
+  const bloco=document.getElementById("bloco").value.trim();
+  if(!curso||!uc||!bloco){alert("Preencha: Curso, UC e Bloco/Aula.");return}
+  const fd=new FormData();
+  fd.append("curso",curso);fd.append("uc",uc);fd.append("bloco_aula",bloco);
+  fd.append("professor",document.getElementById("professor").value.trim());
+  fd.append("informacoes_adicionais",document.getElementById("obs").value.trim());
+  const arq=document.getElementById("plano-file").files[0];
+  if(arq)fd.append("plano_aula",arq);
+  document.getElementById("btn-gerar").disabled=true;
+  document.getElementById("resultado").className="resultado";
+  iniciarProgresso();
+  try{
+    const d=await(await fetch("/api/gerar",{method:"POST",body:fd})).json();
+    encerrarProgresso(d.sucesso);mostrarResultado(d);
+  }catch(e){encerrarProgresso(false);mostrarResultado({sucesso:false,erro:"Erro de conexao com o servidor."})}
+  finally{document.getElementById("btn-gerar").disabled=false}
+}
+
+const TEMPOS=[2000,2000,15000,90000,5000];
+const PCTS=[12,25,45,90,100];
+const LABELS=["Lendo documentos...","Extraindo pedagogia...","Gemini: mapa de capitulos...","Gemini: gerando capitulos (aguarde 2-5 min)...","Montando DOCX profissional..."];
+let timers=[];
+
+function iniciarProgresso(){
+  document.getElementById("progress").classList.add("vis");
+  document.getElementById("pbar").style.cssText="width:0%;background:var(--azul-m)";
+  for(let i=1;i<=5;i++)document.getElementById(`s${i}`).className="step";
+  let acc=0;
+  TEMPOS.forEach((t,i)=>{
+    timers.push(setTimeout(()=>{
+      if(i>0)document.getElementById(`s${i}`).className="step ok";
+      document.getElementById(`s${i+1}`).className="step ativo";
+      document.getElementById("pbar").style.width=PCTS[i]+"%";
+      document.getElementById("progress-label").textContent=LABELS[i];
+    },acc));
+    acc+=t;
+  });
+}
+
+function encerrarProgresso(ok){
+  timers.forEach(clearTimeout);timers=[];
+  for(let i=1;i<=5;i++)document.getElementById(`s${i}`).className=ok?"step ok":"step";
+  const pb=document.getElementById("pbar");
+  pb.style.width="100%";pb.style.background=ok?"var(--verde)":"var(--vermelho)";
+  document.getElementById("progress-label").textContent=ok?"DOCX gerado com sucesso!":"Erro na geracao.";
+  setTimeout(()=>{document.getElementById("progress").classList.remove("vis");pb.style.background="var(--azul-m)"},2500);
+}
+
+function mostrarResultado(d){
+  const area=document.getElementById("resultado");
+  const titulo=document.getElementById("res-titulo");
+  const sub=document.getElementById("res-sub");
+  const metr=document.getElementById("res-metricas");
+  const avisos=document.getElementById("res-avisos");
+  const acoes=document.getElementById("res-acoes");
+  metr.innerHTML=avisos.innerHTML=acoes.innerHTML="";
+  if(d.sucesso){
+    area.className="resultado sucesso";titulo.className="res-titulo s";
+    titulo.textContent="Apostila DOCX gerada com sucesso!";
+    const ap=d.apostila||{},m=d.metricas||{};
+    sub.textContent=`${ap.nome_arquivo||""} — ${ap.tamanho||""} — ${ap.data_geracao||""}`;
+    [{v:(m.tempo_segundos||"?")+"s",l:"Tempo total"},
+     {v:m.total_capitulos||"?",l:"Capitulos"},
+     {v:(m.total_palavras||0).toLocaleString(),l:"Palavras"},
+     {v:m.tokens_saida||"?",l:"Tokens saida"},
+     {v:(m.modelo||"?").split("-")[0],l:"Modelo"}
+    ].forEach(({v,l})=>{metr.innerHTML+=`<div class="metrica"><div class="metrica-val">${v}</div><div class="metrica-label">${l}</div></div>`});
+    (d.avisos||[]).forEach(a=>{avisos.innerHTML+=`<div class="aviso-res">${a}</div>`});
+    acoes.innerHTML=`<a href="/download/${ap.nome_arquivo||""}" class="btn-acao p">Download DOCX</a>`;
+  }else{
+    area.className="resultado erro";titulo.className="res-titulo e";
+    titulo.textContent="Erro na geracao";
+    sub.textContent=d.erro||"Verifique os logs do servidor.";
+  }
+}
+</script>
+</body>
+</html>

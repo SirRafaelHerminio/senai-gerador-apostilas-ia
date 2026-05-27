@@ -1,0 +1,22 @@
+# requirements.txt — Gerador SENAI V1.8
+# Instale: pip install -r requirements.txt
+
+# Servidor Web
+flask>=3.0.0
+Werkzeug>=3.0.0
+
+# Provider principal: Google Gemini
+google-generativeai>=0.8.0
+
+# Leitura de documentos
+python-docx>=1.1.0
+PyMuPDF>=1.24.0
+
+# Exportação DOCX profissional
+python-docx>=1.1.0
+
+# Utilitários
+python-dotenv>=1.0.0
+
+# Provider Groq (backup opcional)
+# groq>=0.9.0
