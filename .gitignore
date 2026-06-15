@@ -1,0 +1,16 @@
+.env
+venv/
+.venv/
+__pycache__/
+.vscode/
+
+uploads/
+output/
+
+Cursos/
+SAEP/
+debug_gemini/
+
+Prompt Apostilas SENAI.docx
+
+*.pyc
