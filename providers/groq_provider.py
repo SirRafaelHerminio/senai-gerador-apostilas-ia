@@ -46,7 +46,7 @@ class GroqProvider(BaseProvider):
         self.client = Groq(api_key=self.api_key)
         logger.info(f"GroqProvider iniciado | Modelo: {self.modelo}")
 
-    def gerar(self, prompt: str) -> dict:
+    def gerar(self, prompt: str, json_mode: bool = False) -> dict:
         """Envia prompt ao Groq com retry automático (3 tentativas)."""
         for tentativa in range(1, 4):
             try:

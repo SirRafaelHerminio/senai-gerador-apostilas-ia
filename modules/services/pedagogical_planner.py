@@ -153,7 +153,7 @@ class PedagogicalPlanner:
         )
 
         # Chama a IA com limite menor de tokens (só precisa do JSON)
-        resultado_ia = self.provider.gerar(prompt)
+        resultado_ia = self.provider.gerar(prompt, json_mode=True)
 
         if not resultado_ia.get("sucesso"):
             logger.error(f"Falha ao gerar mapa pedagógico: {resultado_ia.get('erro')}")

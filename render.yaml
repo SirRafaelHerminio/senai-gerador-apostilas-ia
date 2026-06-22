@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: senai-gerador-apostilas
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn "app:create_app()" --bind 0.0.0.0:$PORT --workers 2 --timeout 300
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: AI_PROVIDER
+        value: gemini
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: GEMINI_MAX_TOKENS
+        value: "16000"
+      - key: GEMINI_TEMPERATURE
+        value: "0.4"
+      - key: SECRET_KEY
+        generateValue: true
