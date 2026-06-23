@@ -75,7 +75,7 @@ class GeminiProvider(BaseProvider):
             f"Max tokens saída: {self._gen_config.max_output_tokens}"
         )
 
-    def gerar(self, prompt: str) -> dict:
+    def gerar(self, prompt: str, json_mode: bool = True) -> dict:
         """
         Gera apostila com Gemini 2.5 Flash.
         Retorna tokens de entrada e saída separadamente + contagem de palavras.
